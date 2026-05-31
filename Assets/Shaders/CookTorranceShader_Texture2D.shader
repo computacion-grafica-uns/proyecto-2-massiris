@@ -19,7 +19,7 @@ Shader "Custom/CookTorranceShader_Texture2D"
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
-        // ── luz direccional (ForwardBase) ──────────────────────────
+            //  luz direccional (ForwardBase)
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
@@ -54,7 +54,7 @@ Shader "Custom/CookTorranceShader_Texture2D"
                 float2 uv       : TEXCOORD2;
             };
 
-            // ── Funciones Cook-Torrance ────────────────────────────────────
+                //  Funciones Cook-Torrance
 
             // D: GGX/Trowbridge-Reitz — distribucion de microfacetas
             // Cuantas microfacetas apuntan exactamente hacia H
@@ -66,14 +66,14 @@ Shader "Custom/CookTorranceShader_Texture2D"
                 return a2 / (UNITY_PI * d * d);
             }
 
-            // G: Smith-GGX — geometria (autooclusión de microfacetas)
+            // G: Smith-GGX — geometria (autooclusion de microfacetas)
             // Microfacetas que se tapan entre si reducen el especular
             float G_Smith(float NdotV, float NdotL, float roughness)
             {
                 float r  = roughness + 1.0;
                 float k  = (r * r) / 8.0;
-                float gV = NdotV / (NdotV * (1.0 - k) + k); // oclusión hacia la cámara
-                float gL = NdotL / (NdotL * (1.0 - k) + k); // oclusión hacia la luz
+                float gV = NdotV / (NdotV * (1.0 - k) + k); // oclusion hacia la camara
+                float gL = NdotL / (NdotL * (1.0 - k) + k); // oclusion hacia la luz
                 return gV * gL;
             }
 
@@ -96,7 +96,7 @@ Shader "Custom/CookTorranceShader_Texture2D"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // ── Mapeo 2D Directo ──────────────────────────────────────
+                //  Mapeo 2D Directo
                 fixed4 texColor = tex2D(_MainTex, i.uv) * _Color;
 
                 // Vectores
@@ -110,12 +110,12 @@ Shader "Custom/CookTorranceShader_Texture2D"
                 float NdotH = max(dot(N, H), 0.0);
                 float HdotV = max(dot(H, V), 0.0);
 
-                // ── F0: reflectancia en incidencia normal ─────────────────
+                //  F0: reflectancia en incidencia normal
                 // Para metales, F0 es el color de la textura (los metales colorean su reflejo)
                 // Para dielectricos (plastico, barro), F0 es un gris fijo (~0.04)
                 float3 f0 = lerp(_F0, texColor.rgb, _Metallic);
 
-                // ── Terminos Cook-Torrance ────────────────────────────────
+                //  Terminos Cook-Torrance
                 float  D = D_GGX(NdotH, _Roughness);
                 float  G = G_Smith(NdotV, NdotL, _Roughness);
                 float3 F = F_Schlick(HdotV, f0);
@@ -123,14 +123,14 @@ Shader "Custom/CookTorranceShader_Texture2D"
                 // Especular PBR: (D * G * F) / (4 * NdotV * NdotL)
                 float3 specular = (D * G * F) / max(4.0 * NdotV * NdotL, 0.001);
 
-                // ── Difuso (Lambert) ──────────────────────────────────────
+                //  Difuso (Lambert)
                 // Los metales no tienen luz difusa (toda la luz se refleja)
                 // Los dielectricos si tienen difuso, modulado por Fresnel (kD)
                 float3 kS = F;                          // fraccion especular
                 float3 kD = (1.0 - kS) * (1.0 - _Metallic); // fraccion difusa
                 float3 diffuse = kD * texColor.rgb / UNITY_PI;
 
-                // ── Resultado final ───────────────────────────────────────
+                //  Resultado final
                 float3 ambient = _Ambient * texColor.rgb;
                 float3 result  = ambient + (diffuse + specular) * NdotL * _LightColor0.rgb;
 
@@ -140,7 +140,7 @@ Shader "Custom/CookTorranceShader_Texture2D"
             ENDCG
         }
 
-        // ── Pass 2: luces adicionales (point y spot) ───────────────────────
+            //  Pass 2: luces adicionales (point y spot)
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
@@ -211,7 +211,7 @@ Shader "Custom/CookTorranceShader_Texture2D"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // ── Mapeo 2D Directo ──────────────────────────────────────
+                //  Mapeo 2D Directo
                 fixed4 texColor = tex2D(_MainTex, i.uv) * _Color;
 
                 float3 N = normalize(i.normal);

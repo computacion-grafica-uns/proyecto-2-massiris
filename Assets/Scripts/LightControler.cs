@@ -22,7 +22,7 @@ public class LightController : MonoBehaviour
             spotLight.enabled = !spotLight.enabled;
     }
 
-    // Métodos públicos útiles si después querés llamarlos desde una UI
+    // Metodos publicos utiles si despues queres llamarlos desde una UI
     public void ToggleDirectional() => directionalLight.enabled = !directionalLight.enabled;
     public void TogglePoint()       => pointLight.enabled = !pointLight.enabled;
     public void ToggleSpot()        => spotLight.enabled = !spotLight.enabled;

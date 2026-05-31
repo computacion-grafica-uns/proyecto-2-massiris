@@ -1,25 +1,74 @@
-Shader "Custom/CookTorranceShader_Glass"
+Shader "Custom/CookTorranceShader_Procedural"
 {
     Properties
     {
-        _Color      ("Color base",          Color)        = (1, 1, 1, 1)
+        _Color      ("Color base (Madera Clara)", Color)  = (0.6, 0.4, 0.2, 1)
+        _Color2     ("Color vetas (Madera Oscura)",Color) = (0.3, 0.15, 0.05, 1)
         _Alpha      ("Transparencia",       Range(0,1))   = 1.0
         _Ambient    ("Intensidad ambiente", Range(0,1))   = 0.03
         _Roughness  ("Rugosidad",           Range(0.01,1)) = 0.5
-        // 0 = dielectrico (plastico/barro), 1 = metal
         _Metallic   ("Metalicidad",         Range(0,1))   = 0.0
-        // Color del reflejo especular en materiales no metalicos
         _F0         ("Reflectancia base (F0)", Color)     = (0.04, 0.04, 0.04, 1)
+        
+        // Controles Procedurales
+        _NoiseScale ("Escala del Ruido",    Float)        = 10.0
+        _RingScale  ("Densidad de Anillos", Float)        = 20.0
+        _Turbulence ("Turbulencia",         Float)        = 2.0
     }
+
+    // Bloque común para no repetir funciones de ruido en ambos pases
+    CGINCLUDE
+    float _NoiseScale;
+    float _RingScale;
+    float _Turbulence;
+    fixed4 _Color2;
+
+    // Función Hash 3D
+    float hash(float3 p) {
+        p = frac(p * 0.3183099 + 0.1);
+        p *= 17.0;
+        return frac(p.x * p.y * p.z * (p.x + p.y + p.z));
+    }
+
+    // Función de Ruido de Valor 3D básico
+    float noise(float3 x) {
+        float3 i = floor(x);
+        float3 f = frac(x);
+        f = f * f * (3.0 - 2.0 * f);
+
+        return lerp(lerp(lerp(hash(i + float3(0,0,0)), hash(i + float3(1,0,0)), f.x),
+                         lerp(hash(i + float3(0,1,0)), hash(i + float3(1,1,0)), f.x), f.y),
+                    lerp(lerp(hash(i + float3(0,0,1)), hash(i + float3(1,0,1)), f.x),
+                         lerp(hash(i + float3(0,1,1)), hash(i + float3(1,1,1)), f.x), f.y), f.z);
+    }
+
+    // Expresión para calcular el color procedural de la madera
+    float3 GetWoodAlbedo(float3 worldPos, float3 color1, float3 color2) {
+        // Generar ruido tridimensional basado en la posición del mundo
+        float n = noise(worldPos * _NoiseScale);
+        
+        // Calcular la distancia desde el eje Y central (asumiendo que el árbol crece en Y)
+        // Puedes cambiar esto a length(worldPos) para un patrón esférico tipo mármol/granito.
+        float radius = length(worldPos.xz);
+        
+        // Aplicar la distorsión senoidal
+        float woodPattern = sin(radius * _RingScale + n * _Turbulence);
+        
+        // Normalizar de [-1, 1] a [0, 1]
+        woodPattern = woodPattern * 0.5 + 0.5;
+        
+        // Interpolar entre los dos colores de madera
+        return lerp(color1, color2, woodPattern);
+    }
+    ENDCG
 
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        // CAMBIO 1: Alpha Premultiplicado para que el especular siga siendo brillante
-        Blend One OneMinusSrcAlpha
+        Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
-        //  Pass 1: luz direccional (ForwardBase)
+        // --- Pase 1: Luz Direccional (ForwardBase) ---
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
@@ -37,44 +86,38 @@ Shader "Custom/CookTorranceShader_Glass"
             float     _Metallic;
             float3    _F0;
 
-            struct appdata
-            {
+            struct appdata {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
             };
 
-            struct v2f
-            {
+            struct v2f {
                 float4 pos      : SV_POSITION;
                 float3 normal   : TEXCOORD0;
                 float3 worldPos : TEXCOORD1;
             };
 
-            //  Funciones Cook-Torrance
-            float D_GGX(float NdotH, float roughness)
-            {
-                float a  = roughness * roughness;
+            // Funciones Cook-Torrance
+            float D_GGX(float NdotH, float roughness) {
+                float a = roughness * roughness;
                 float a2 = a * a;
-                float d  = (NdotH * NdotH) * (a2 - 1.0) + 1.0;
+                float d = (NdotH * NdotH) * (a2 - 1.0) + 1.0;
                 return a2 / (UNITY_PI * d * d);
             }
 
-            float G_Smith(float NdotV, float NdotL, float roughness)
-            {
-                float r  = roughness + 1.0;
-                float k  = (r * r) / 8.0;
+            float G_Smith(float NdotV, float NdotL, float roughness) {
+                float r = roughness + 1.0;
+                float k = (r * r) / 8.0;
                 float gV = NdotV / (NdotV * (1.0 - k) + k);
                 float gL = NdotL / (NdotL * (1.0 - k) + k);
                 return gV * gL;
             }
 
-            float3 F_Schlick(float HdotV, float3 f0)
-            {
+            float3 F_Schlick(float HdotV, float3 f0) {
                 return f0 + (1.0 - f0) * pow(1.0 - HdotV, 5.0);
             }
 
-            v2f vert(appdata v)
-            {
+            v2f vert(appdata v) {
                 v2f o;
                 o.pos      = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
@@ -82,8 +125,7 @@ Shader "Custom/CookTorranceShader_Glass"
                 return o;
             }
 
-            fixed4 frag(v2f i) : SV_Target
-            {
+            fixed4 frag(v2f i) : SV_Target {
                 float3 N = normalize(i.normal);
                 float3 L = normalize(_WorldSpaceLightPos0.xyz);
                 float3 V = normalize(_WorldSpaceCameraPos - i.worldPos);
@@ -94,32 +136,33 @@ Shader "Custom/CookTorranceShader_Glass"
                 float NdotH = max(dot(N, H), 0.0);
                 float HdotV = max(dot(H, V), 0.0);
 
-                float3 f0 = lerp(_F0, _Color.rgb, _Metallic);
-                
-                float  D = D_GGX(NdotH, _Roughness);
-                float  G = G_Smith(NdotV, NdotL, _Roughness);
+                // --- INTEGRACIÓN PROCEDURAL ---
+                // Reemplazamos _Color.rgb con nuestro albedo calculado en tiempo real
+                float3 albedo = GetWoodAlbedo(i.worldPos, _Color.rgb, _Color2.rgb);
+
+                float3 f0 = lerp(_F0, albedo, _Metallic);
+
+                float D = D_GGX(NdotH, _Roughness);
+                float G = G_Smith(NdotV, NdotL, _Roughness);
                 float3 F = F_Schlick(HdotV, f0);
 
                 float3 specular = (D * G * F) / max(4.0 * NdotV * NdotL, 0.001);
-                
+
                 float3 kS = F;
                 float3 kD = (1.0 - kS) * (1.0 - _Metallic);
-                float3 diffuse = kD * _Color.rgb / UNITY_PI;
+                
+                // Aplicamos el albedo procedural al término difuso y ambiente
+                float3 diffuse = kD * albedo / UNITY_PI;
+                float3 ambient = _Ambient * albedo;
+                float3 result  = ambient + (diffuse + specular) * NdotL * _LightColor0.rgb;
 
-                // CAMBIO 2: Calculamos el alpha y lo aplicamos SOLO al difuso y al ambiente.
                 float alpha = _Color.a * _Alpha;
-                float3 premulDiffuse = diffuse * alpha;
-                float3 premulAmbient = (_Ambient * _Color.rgb) * alpha;
-
-                // Sumamos el especular puro para que brille aunque el material sea transparente
-                float3 result = premulAmbient + (premulDiffuse + specular) * NdotL * _LightColor0.rgb;
-
                 return fixed4(result, alpha);
             }
             ENDCG
         }
 
-        //  Pass 2: luces adicionales (point y spot)
+        // --- Pase 2: Luces adicionales (ForwardAdd) ---
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
@@ -135,48 +178,41 @@ Shader "Custom/CookTorranceShader_Glass"
             #include "AutoLight.cginc"
 
             fixed4    _Color;
-            float     _Alpha; // CAMBIO 3: Agregada la variable _Alpha que faltaba en este Pass
             float     _Roughness;
             float     _Metallic;
             float3    _F0;
 
-            struct appdata
-            {
+            struct appdata {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
             };
 
-            struct v2f
-            {
+            struct v2f {
                 float4 pos      : SV_POSITION;
                 float3 normal   : TEXCOORD0;
                 float3 worldPos : TEXCOORD1;
             };
 
-            float D_GGX(float NdotH, float roughness)
-            {
-                float a  = roughness * roughness;
+            float D_GGX(float NdotH, float roughness) {
+                float a = roughness * roughness;
                 float a2 = a * a;
-                float d  = (NdotH * NdotH) * (a2 - 1.0) + 1.0;
+                float d = (NdotH * NdotH) * (a2 - 1.0) + 1.0;
                 return a2 / (UNITY_PI * d * d);
             }
 
-            float G_Smith(float NdotV, float NdotL, float roughness)
-            {
-                float r  = roughness + 1.0;
-                float k  = (r * r) / 8.0;
+            float G_Smith(float NdotV, float NdotL, float roughness) {
+                float r = roughness + 1.0;
+                float k = (r * r) / 8.0;
                 float gV = NdotV / (NdotV * (1.0 - k) + k);
                 float gL = NdotL / (NdotL * (1.0 - k) + k);
                 return gV * gL;
             }
 
-            float3 F_Schlick(float HdotV, float3 f0)
-            {
+            float3 F_Schlick(float HdotV, float3 f0) {
                 return f0 + (1.0 - f0) * pow(1.0 - HdotV, 5.0);
             }
 
-            v2f vert(appdata v)
-            {
+            v2f vert(appdata v) {
                 v2f o;
                 o.pos      = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
@@ -184,8 +220,7 @@ Shader "Custom/CookTorranceShader_Glass"
                 return o;
             }
 
-            fixed4 frag(v2f i) : SV_Target
-            {
+            fixed4 frag(v2f i) : SV_Target {
                 float3 N = normalize(i.normal);
                 float3 V = normalize(_WorldSpaceCameraPos - i.worldPos);
 
@@ -201,26 +236,24 @@ Shader "Custom/CookTorranceShader_Glass"
                 float NdotH = max(dot(N, H), 0.0);
                 float HdotV = max(dot(H, V), 0.0);
 
-                float3 f0 = lerp(_F0, _Color.rgb, _Metallic);
+                // --- INTEGRACIÓN PROCEDURAL ---
+                float3 albedo = GetWoodAlbedo(i.worldPos, _Color.rgb, _Color2.rgb);
 
-                float  D = D_GGX(NdotH, _Roughness);
-                float  G = G_Smith(NdotV, NdotL, _Roughness);
+                float3 f0 = lerp(_F0, albedo, _Metallic);
+
+                float D = D_GGX(NdotH, _Roughness);
+                float G = G_Smith(NdotV, NdotL, _Roughness);
                 float3 F = F_Schlick(HdotV, f0);
-                
+
                 float3 specular = (D * G * F) / max(4.0 * NdotV * NdotL, 0.001);
-                
+
                 float3 kS = F;
                 float3 kD = (1.0 - kS) * (1.0 - _Metallic);
-                float3 diffuse = kD * _Color.rgb / UNITY_PI;
                 
+                float3 diffuse = kD * albedo / UNITY_PI;
                 UNITY_LIGHT_ATTENUATION(atten, 0, i.worldPos);
 
-                // CAMBIO 4: Multiplicamos el difuso por alpha antes de sumar el especular
-                float alpha = _Color.a * _Alpha;
-                float3 premulDiffuse = diffuse * alpha;
-
-                float3 result = (premulDiffuse + specular) * NdotL * _LightColor0.rgb * atten;
-                
+                float3 result = (diffuse + specular) * NdotL * _LightColor0.rgb * atten;
                 return fixed4(result, 1.0);
             }
             ENDCG

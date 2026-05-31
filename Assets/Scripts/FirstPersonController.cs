@@ -7,13 +7,13 @@ public class FirstPersonController : MonoBehaviour
     public float moveSpeed = 5f;
     public float rotationSpeed = 80f;
 
-    [Header("Cámara (mirar arriba/abajo)")]
+    [Header("Camara (mirar arriba/abajo)")]
     public Transform cameraTransform;
     public float mouseSensitivity = 2f;
     public float maxLookAngle = 80f;
 
     private CharacterController _cc;
-    private float _cameraPitch = 0f;   // rotación vertical acumulada
+    private float _cameraPitch = 0f;   // rotacion vertical acumulada
 
     void Start()
     {
@@ -31,7 +31,7 @@ public class FirstPersonController : MonoBehaviour
     {
         // WASD o flechas
         float h = Input.GetAxis("Horizontal");   // A/D → strafe (opcional)
-        float v = Input.GetAxis("Vertical");     // W/S → adelante/atrás
+        float v = Input.GetAxis("Vertical");     // W/S → adelante/atras
 
         Vector3 move = transform.forward * v + transform.right * h;
         _cc.SimpleMove(move * moveSpeed);        // SimpleMove ya aplica gravedad
@@ -39,11 +39,11 @@ public class FirstPersonController : MonoBehaviour
 
     void HandleRotation()
     {
-        // Rotación horizontal del cuerpo (izquierda/derecha)
+        // Rotacion horizontal del cuerpo (izquierda/derecha)
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         transform.Rotate(Vector3.up, mouseX);
 
-        // Rotación vertical de la cámara (arriba/abajo)
+        // Rotacion vertical de la camara (arriba/abajo)
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
         _cameraPitch -= mouseY;
         _cameraPitch = Mathf.Clamp(_cameraPitch, -maxLookAngle, maxLookAngle);

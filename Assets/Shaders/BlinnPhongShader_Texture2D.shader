@@ -17,7 +17,7 @@ Shader "Custom/BlinnPhongShader_Texture2D"
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
-        // ── Pass 1: luz direccional (ForwardBase) ──────────────────────────
+        //  Pass 1: luz direccional (ForwardBase)
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
@@ -66,7 +66,7 @@ Shader "Custom/BlinnPhongShader_Texture2D"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // ── Mapeo 2D Directo ──────────────────────────────────────
+                //  Mapeo 2D Directo
                 // Las UVs vienen directamente del mesh (sin modificar).
                 // tex2D samplea la textura en esa coordenada y la tintamos con _Color.
                 fixed4 texColor = tex2D(_MainTex, i.uv) * _Color;
@@ -95,7 +95,7 @@ Shader "Custom/BlinnPhongShader_Texture2D"
             ENDCG
         }
 
-        // ── Pass 2: luces adicionales (point y spot) ───────────────────────
+        //  Pass 2: luces adicionales (point y spot)
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
@@ -144,13 +144,13 @@ Shader "Custom/BlinnPhongShader_Texture2D"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // ── Mapeo 2D Directo ──────────────────────────────────────
+                //  Mapeo 2D Directo
                 fixed4 texColor = tex2D(_MainTex, i.uv) * _Color;
 
                 float3 N = normalize(i.normal);
                 float3 V = normalize(_WorldSpaceCameraPos - i.worldPos);
 
-                // Para point y spot la dirección de la luz se calcula diferente
+                // Para point y spot la direccion de la luz se calcula diferente
                 #ifdef USING_DIRECTIONAL_LIGHT
                     float3 L = normalize(_WorldSpaceLightPos0.xyz);
                 #else
@@ -164,7 +164,7 @@ Shader "Custom/BlinnPhongShader_Texture2D"
                 float  spec     = pow(max(dot(N, H), 0.0), _Shininess);
                 float3 specular = _Specular * spec  * _LightColor0.rgb;
 
-                // Atenuación (point y spot se apagan con la distancia)
+                // Atenuacion (point y spot se apagan con la distancia)
                 UNITY_LIGHT_ATTENUATION(atten, 0, i.worldPos);
 
                 return fixed4((diffuse + specular) * atten, 1.0);

@@ -12,7 +12,7 @@ Shader "Custom/BlinnPhongShader"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" } //unity usa esta etiqueta para ordenar los objetos transparentes después de los opacos
+        Tags { "Queue"="Transparent" } //unity usa esta etiqueta para ordenar los objetos transparentes despues de los opacos
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
@@ -59,7 +59,7 @@ Shader "Custom/BlinnPhongShader"
                 // Normalizamos los vectores
                 float3 N = normalize(i.normal);
                 float3 L = normalize(_WorldSpaceLightPos0.xyz);  // direccion a la luz
-                float3 V = normalize(_WorldSpaceCameraPos - i.worldPos); // direccion a la cámara
+                float3 V = normalize(_WorldSpaceCameraPos - i.worldPos); // direccion a la camara
                 float3 H = normalize(L + V);  // vector medio (Blinn-Phong)
 
                 // Componente ambiental
@@ -86,7 +86,7 @@ Shader "Custom/BlinnPhongShader"
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
-            Blend One One          // suma la contribución de cada luz extra
+            Blend One One          // suma la contribucion de cada luz extra
             ZWrite Off             // no sobreescribe el depth buffer
 
             CGPROGRAM
@@ -129,7 +129,7 @@ Shader "Custom/BlinnPhongShader"
                 float3 N = normalize(i.normal);
                 float3 V = normalize(_WorldSpaceCameraPos - i.worldPos);
 
-                // Para point y spot la dirección de la luz se calcula diferente
+                // Para point y spot la direccion de la luz se calcula diferente
                 #ifdef USING_DIRECTIONAL_LIGHT
                     float3 L = normalize(_WorldSpaceLightPos0.xyz);
                 #else
@@ -143,7 +143,7 @@ Shader "Custom/BlinnPhongShader"
                 float  spec     = pow(max(dot(N, H), 0.0), _Shininess);
                 float3 specular = _Specular * spec * _LightColor0.rgb;
 
-                // Atenuación (la spot y point se van apagando con la distancia)
+                // Atenuacion (la spot y point se van apagando con la distancia)
                 UNITY_LIGHT_ATTENUATION(atten, 0, i.worldPos);
 
                 return fixed4((diffuse + specular) * atten, 1.0);

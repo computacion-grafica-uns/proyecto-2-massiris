@@ -9,12 +9,12 @@ Shader "Custom/ToonShader"
         _Specular   ("Intensidad especular",Range(0,1)) = 0.3
         _Shininess  ("Brillo especular",    Range(1,256)) = 16
 
-        // Propiedades nuevas del estilo toon
+        // Propiedades toon
         _DiffuseBands   ("Bandas difusas",    Range(1,8))   = 3
         _SpecularThresh ("Umbral especular",  Range(0,1))   = 0.5
         _SpecularSmooth ("Suavidad especular",Range(0,0.1)) = 0.02
 
-        // Outline (contorno negro)
+        // Outline
         _OutlineColor   ("Color del contorno", Color)      = (0,0,0,1)
         _OutlineWidth   ("Grosor del contorno", Range(0, 0.1)) = 0.02
     }
@@ -23,9 +23,9 @@ Shader "Custom/ToonShader"
     {
         Tags { "Queue"="Transparent" }
 
-        // ─── Pass 0: Outline (contorno negro) ───────────────────────────────
-        // Truco clásico: renderizamos solo las caras traseras, agrandadas
-        // en dirección a la normal, con color negro.
+        // Pass 0 outline (LLM)
+        // Truco clasico: renderizamos solo las caras traseras, agrandadas
+        // en direccion a la normal, con color negro.
         Pass
         {
             Name "OUTLINE"
@@ -55,7 +55,7 @@ Shader "Custom/ToonShader"
             v2f vert(appdata v)
             {
                 v2f o;
-                // Desplazamos cada vértice hacia afuera a lo largo de su normal
+                // Desplazamos cada vertice hacia afuera a lo largo de su normal
                 float3 worldNorm = UnityObjectToWorldNormal(v.normal);
                 float4 worldPos  = mul(unity_ObjectToWorld, v.vertex);
                 worldPos.xyz    += worldNorm * _OutlineWidth;
@@ -70,7 +70,7 @@ Shader "Custom/ToonShader"
             ENDCG
         }
 
-        // ─── Pass 1: Iluminación toon (luz principal / ForwardBase) ─────────
+        //  Pass 1: Iluminacion toon (luz principal / ForwardBase) 
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
@@ -122,17 +122,17 @@ Shader "Custom/ToonShader"
                 float3 V = normalize(_WorldSpaceCameraPos - i.worldPos);
                 float3 H = normalize(L + V);
 
-                // ── Componente ambiental (sin cambios) ──
+                // Componente ambiental 
                 float3 ambient = _Ambient * _Color.rgb;
 
-                // ── Difusa CUANTIZADA ───────────────────
+                // Difusa CUANTIZADA 
                 // En vez de usar diff directamente, lo "escalamos" a bandas
                 // floor(diff * bandas) / bandas da escalones de igual ancho
                 float diff = max(dot(N, L), 0.0);
                 float diffToon = floor(diff * _DiffuseBands) / _DiffuseBands;
                 float3 diffuse = _Diffuse * diffToon * _Color.rgb * _LightColor0.rgb;
 
-                // ── Especular BINARIA ───────────────────
+                // Especular BINARIA
                 // En toon la especular es on/off: aparece cuando supera un umbral.
                 // smoothstep da un borde suave (evita aliasing en el filo).
                 float spec = pow(max(dot(N, H), 0.0), _Shininess);
@@ -150,7 +150,7 @@ Shader "Custom/ToonShader"
             ENDCG
         }
 
-        // ─── Pass 2: Luces adicionales (point y spot) / ForwardAdd ──────────
+        // Luces adicionales (point y spot) / ForwardAdd
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }

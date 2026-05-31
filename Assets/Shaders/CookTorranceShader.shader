@@ -18,7 +18,7 @@ Shader "Custom/CookTorranceShader"
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
 
-        // ── luz direccional (ForwardBase) ──────────────────────────
+        //  luz direccional (ForwardBase)
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
@@ -49,7 +49,7 @@ Shader "Custom/CookTorranceShader"
                 float3 worldPos : TEXCOORD1;
             };
 
-            // ── Funciones Cook-Torrance ────────────────────────────────────
+            //  Funciones Cook-Torrance
 
             // D: GGX/Trowbridge-Reitz — distribucion de microfacetas
             float D_GGX(float NdotH, float roughness)
@@ -60,13 +60,13 @@ Shader "Custom/CookTorranceShader"
                 return a2 / (UNITY_PI * d * d);
             }
 
-            // G: Smith-GGX — geometria (autooclusión de microfacetas)
+            // G: Smith-GGX — geometria (autooclusion de microfacetas)
             float G_Smith(float NdotV, float NdotL, float roughness)
             {
                 float r  = roughness + 1.0;
                 float k  = (r * r) / 8.0;
-                float gV = NdotV / (NdotV * (1.0 - k) + k); // oclusión hacia la cámara
-                float gL = NdotL / (NdotL * (1.0 - k) + k); // oclusión hacia la luz
+                float gV = NdotV / (NdotV * (1.0 - k) + k); // oclusion hacia la camara
+                float gL = NdotL / (NdotL * (1.0 - k) + k); // oclusion hacia la luz
                 return gV * gL;
             }
 
@@ -98,11 +98,11 @@ Shader "Custom/CookTorranceShader"
                 float NdotH = max(dot(N, H), 0.0);
                 float HdotV = max(dot(H, V), 0.0);
 
-                // ── F0: reflectancia en incidencia normal ─────────────────
+                //  F0: reflectancia en incidencia normal
                 // En lugar de usar texColor, usamos el _Color.rgb directamente
                 float3 f0 = lerp(_F0, _Color.rgb, _Metallic);
 
-                // ── Terminos Cook-Torrance ────────────────────────────────
+                //  Terminos Cook-Torrance
                 float  D = D_GGX(NdotH, _Roughness);
                 float  G = G_Smith(NdotV, NdotL, _Roughness);
                 float3 F = F_Schlick(HdotV, f0);
@@ -110,14 +110,14 @@ Shader "Custom/CookTorranceShader"
                 // Especular PBR: (D * G * F) / (4 * NdotV * NdotL)
                 float3 specular = (D * G * F) / max(4.0 * NdotV * NdotL, 0.001);
 
-                // ── Difuso (Lambert) ──────────────────────────────────────
+                //  Difuso (Lambert)
                 float3 kS = F; // fraccion especular
                 float3 kD = (1.0 - kS) * (1.0 - _Metallic); // fraccion difusa
                 
-                // Aplicamos el _Color.rgb al término difuso
+                // Aplicamos el _Color.rgb al termino difuso
                 float3 diffuse = kD * _Color.rgb / UNITY_PI;
 
-                // ── Resultado final ───────────────────────────────────────
+                //  Resultado final
                 float3 ambient = _Ambient * _Color.rgb;
                 float3 result  = ambient + (diffuse + specular) * NdotL * _LightColor0.rgb;
 
@@ -128,7 +128,7 @@ Shader "Custom/CookTorranceShader"
             ENDCG
         }
 
-        // ── Pass 2: luces adicionales (point y spot) ───────────────────────
+        //  Pass 2: luces adicionales (point y spot)
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
