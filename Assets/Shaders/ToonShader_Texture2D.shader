@@ -22,7 +22,7 @@ Shader "Custom/ToonShader_Texture2D"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" }
+        Tags { "Queue"="Geometry" }
 
         // pass 0 contorno
         // dibujamos las caras de atras mas grandes siguiendo la normal
@@ -31,7 +31,6 @@ Shader "Custom/ToonShader_Texture2D"
             Name "OUTLINE"
             Cull Front          
             ZWrite On
-            Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
             #pragma vertex vert
@@ -74,8 +73,7 @@ Shader "Custom/ToonShader_Texture2D"
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off
+            ZWrite On
 
             CGPROGRAM
             #pragma vertex vert
@@ -149,10 +147,7 @@ Shader "Custom/ToonShader_Texture2D"
                 float3 specular = _Specular * specToon * _LightColor0.rgb;
 
                 float3 result = ambient + diffuse + specular;
-                
-                // multiplicamos tambien por el alpha de la textura por si es transparente
-                float  alpha  = _Color.a * texColor.a * _Alpha;
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }

@@ -64,9 +64,8 @@ Shader "Custom/CookTorranceShader_Procedural"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        Tags { "Queue"="Geometry" "RenderType"="Opaque" }
+        ZWrite On
 
         // --- Pase 1: Luz Direccional (ForwardBase) ---
         Pass
@@ -155,9 +154,7 @@ Shader "Custom/CookTorranceShader_Procedural"
                 float3 diffuse = kD * albedo / UNITY_PI;
                 float3 ambient = _Ambient * albedo;
                 float3 result  = ambient + (diffuse + specular) * NdotL * _LightColor0.rgb;
-
-                float alpha = _Color.a * _Alpha;
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }

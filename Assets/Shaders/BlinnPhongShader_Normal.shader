@@ -3,7 +3,6 @@ Shader "Custom/BlinnPhongShader_Normal"
     Properties
     {
         _Color      ("Color base",          Color)      = (0.6, 0.3, 0.15, 1)
-        _Alpha      ("Transparencia",        Range(0,1)) = 1.0
         _Ambient    ("Intensidad ambiente",  Range(0,1)) = 0.2
         _Diffuse    ("Intensidad difusa",    Range(0,1)) = 0.8
         _Specular   ("Intensidad especular", Range(0,1)) = 0.3
@@ -18,9 +17,8 @@ Shader "Custom/BlinnPhongShader_Normal"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" }
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        Tags { "Queue"="Geometry" }
+        ZWrite On
 
         Pass
         {
@@ -31,7 +29,6 @@ Shader "Custom/BlinnPhongShader_Normal"
             #include "Lighting.cginc"
 
             fixed4  _Color;
-            float   _Alpha;
             float   _Ambient;
             float   _Diffuse;
             float   _Specular;
@@ -120,8 +117,7 @@ Shader "Custom/BlinnPhongShader_Normal"
                 float3 specular = _Specular * spec * _LightColor0.rgb;
 
                 float3 result = ambient + diffuse + specular;
-                float  alpha  = _Color.a * _Alpha;
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }
@@ -130,7 +126,6 @@ Shader "Custom/BlinnPhongShader_Normal"
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
-            Blend One One
             ZWrite Off
 
             CGPROGRAM

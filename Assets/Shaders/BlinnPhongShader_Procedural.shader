@@ -20,9 +20,8 @@ Shader "Custom/BlinnPhongShader_Procedural"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" }
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        Tags { "Queue"="Geometry" }
+        ZWrite On
 
         // ------------------------------------------------------------------
         // pass principal: luz direccional + ambiente
@@ -155,8 +154,7 @@ Shader "Custom/BlinnPhongShader_Procedural"
                 float3 specular = _Specular * spec * _LightColor0.rgb;
 
                 float3 result = ambient + diffuse + specular;
-                float  alpha  = _Alpha;
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }

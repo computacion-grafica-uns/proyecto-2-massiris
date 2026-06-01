@@ -13,9 +13,8 @@ Shader "Custom/BlinnPhongShader_Texture2D"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" }
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
+        Tags { "Queue"="Geometry" }
+        ZWrite On
 
         //  Pass 1: luz direccional (ForwardBase)
         Pass
@@ -89,8 +88,7 @@ Shader "Custom/BlinnPhongShader_Texture2D"
                 float3 specular = _Specular * spec * _LightColor0.rgb;
 
                 float3 result = ambient + diffuse + specular;
-                float  alpha  = texColor.a * _Alpha;
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }

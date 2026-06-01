@@ -29,7 +29,7 @@ Shader "Custom/ToonShader"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" }
+        Tags { "Queue"="Geometry" }
 
         // pass 0: outline (caras traseras agrandadas en direccion a la normal)
         Pass
@@ -37,7 +37,6 @@ Shader "Custom/ToonShader"
             Name "OUTLINE"
             Cull Front
             ZWrite On
-            Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
             #pragma vertex vert
@@ -79,8 +78,7 @@ Shader "Custom/ToonShader"
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off
+            ZWrite On
 
             CGPROGRAM
             #pragma vertex vert
@@ -175,9 +173,7 @@ Shader "Custom/ToonShader"
                 float3 result = ambient * hatchColor / max(_Color.rgb, 0.001)
                               + _Diffuse * diffToon * hatchColor * _LightColor0.rgb
                               + specular;
-
-                float alpha = _Color.a * _Alpha;
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }

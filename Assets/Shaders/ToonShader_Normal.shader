@@ -24,7 +24,7 @@ Shader "Custom/ToonShader_Normal"
 
     SubShader
     {
-        Tags { "Queue"="Transparent" }
+        Tags { "Queue"="Geometry" }
 
         // Pass 0 outline (LLM)
         Pass
@@ -32,7 +32,6 @@ Shader "Custom/ToonShader_Normal"
             Name "OUTLINE"
             Cull Front
             ZWrite On
-            Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
             #pragma vertex vert
@@ -74,8 +73,7 @@ Shader "Custom/ToonShader_Normal"
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off
+            ZWrite On
 
             CGPROGRAM
             #pragma vertex vert
@@ -170,9 +168,7 @@ Shader "Custom/ToonShader_Normal"
                 float3 specular = _Specular * specToon * _LightColor0.rgb;
 
                 float3 result = ambient + diffuse + specular;
-                float  alpha  = _Color.a * _Alpha;
-                
-                return fixed4(result, alpha);
+                return fixed4(result, 1.0);
             }
             ENDCG
         }

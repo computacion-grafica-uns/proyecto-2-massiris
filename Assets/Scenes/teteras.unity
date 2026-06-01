@@ -1985,8 +1985,11 @@ MonoBehaviour:
   - {fileID: 702015083}
   - {fileID: 1935388151}
   - {fileID: 2144834525}
-  cameraOffset: {x: 0, y: 2, z: -3}
-  smoothTime: 0.3
+  orbitDistance: 2
+  focusOffset: {x: 0, y: 0, z: 0}
+  rotationSpeed: 5
+  minPitch: -20
+  maxPitch: 80
 --- !u!4 &1903101058 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: be1f4db090c8f2945a1ac424e5f0350b, type: 3}

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_Barro_BlinnPhong
+  m_Name: BlinnPhong
   m_Shader: {fileID: 4800000, guid: e6cbbac2ca8a685449d79b5ce45f4111, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
