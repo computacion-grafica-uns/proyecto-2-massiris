@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Toon_Shader
+  m_Name: CT_Transparent 1
   m_Shader: {fileID: 4800000, guid: 696b2d989dc287d40b031622764fbf1e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -61,12 +61,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 1
-    - _Ambient: 0.2
+    - _Alpha: 0.099
+    - _Ambient: 0.428
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Diffuse: 0.8
+    - _Diffuse: 0.818
     - _DiffuseBands: 3
     - _DstBlend: 0
     - _GlossMapScale: 1
@@ -75,19 +75,19 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _OutlineWidth: 0.009
+    - _OutlineWidth: 0.0106
     - _Parallax: 0.02
-    - _Shininess: 16
+    - _Shininess: 25
     - _SmoothnessTextureChannel: 0
-    - _Specular: 0.3
+    - _Specular: 1
     - _SpecularHighlights: 1
-    - _SpecularSmooth: 0.02
-    - _SpecularThresh: 0.5
+    - _SpecularSmooth: 0.1
+    - _SpecularThresh: 0.225
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 0.5325429, b: 0.3160377, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

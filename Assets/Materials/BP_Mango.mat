@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Toon_Shader
-  m_Shader: {fileID: 4800000, guid: 696b2d989dc287d40b031622764fbf1e, type: 3}
+  m_Name: BP_Mango
+  m_Shader: {fileID: 4800000, guid: e6cbbac2ca8a685449d79b5ce45f4111, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -62,12 +62,11 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 1
-    - _Ambient: 0.2
+    - _Ambient: 0.276
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Diffuse: 0.8
-    - _DiffuseBands: 3
+    - _Diffuse: 0.794
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -75,20 +74,16 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _OutlineWidth: 0.009
     - _Parallax: 0.02
-    - _Shininess: 16
+    - _Shininess: 256
     - _SmoothnessTextureChannel: 0
-    - _Specular: 0.3
+    - _Specular: 0.177
     - _SpecularHighlights: 1
-    - _SpecularSmooth: 0.02
-    - _SpecularThresh: 0.5
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 0.5325429, b: 0.3160377, a: 1}
+    - _Color: {r: 0.103773594, g: 0.03647494, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

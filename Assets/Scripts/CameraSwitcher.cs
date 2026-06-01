@@ -2,23 +2,28 @@ using UnityEngine;
 
 public class CameraSwitcher : MonoBehaviour
 {
-    [Header("Configuracion de Objetivos")]
-    [Tooltip("Arrastra aqui los GameObjects que la camara debe enfocar.")]
+    [Header("configuracion de objetivos")]
+    [Tooltip("arrastra aqui los gameobjects que la camara debe enfocar")]
     public Transform[] targets;
     
-    [Header("Configuracion de Camara")]
-    [Tooltip("La distancia y altura de la camara respecto al objeto (X, Y, Z).")]
-    public Vector3 cameraOffset = new Vector3(0f, 2f, -3f);
+    [Header("configuracion de orbita")]
+    public float orbitDistance = 4f;
+    // usamos un vector3 para poder forzar el centro hacia abajo con valores negativos en y
+    public Vector3 focusOffset = new Vector3(0f, -1f, 0f); 
+    public float rotationSpeed = 5f;
     
-    [Tooltip("Tiempo que tarda la camara en llegar al objetivo (menor es mas rapido).")]
-    public float smoothTime = 0.3f;
+    [Header("limites de rotacion vertical")]
+    public float minPitch = -20f;
+    public float maxPitch = 80f;
 
     private int currentIndex = 0;
-    private Vector3 velocity = Vector3.zero;
+    
+    private float yaw = 0f;
+    private float pitch = 20f;
 
     void Update()
     {
-        // Evitar errores si el array esta vacio
+        // evitar errores si el array esta vacio
         if (targets == null || targets.Length == 0) return;
 
         HandleInput();
@@ -33,36 +38,44 @@ public class CameraSwitcher : MonoBehaviour
 
     private void HandleInput()
     {
-        // Flecha Derecha: Avanzar en el array usando el operador modulo para crear un ciclo infinito
+        // avanzar al siguiente objetivo
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             currentIndex = (currentIndex + 1) % targets.Length;
         }
-        // Flecha Izquierda: Retroceder en el array
+        // retroceder al objetivo anterior
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             currentIndex--;
             if (currentIndex < 0)
             {
-                currentIndex = targets.Length - 1; // Volver al final si bajamos de 0
+                // ir al ultimo si bajamos de cero
+                currentIndex = targets.Length - 1; 
             }
         }
+
+        // capturar movimiento del raton en ambos ejes de forma instantanea
+        yaw += Input.GetAxis("Mouse X") * rotationSpeed;
+        pitch -= Input.GetAxis("Mouse Y") * rotationSpeed;
+        
+        // restringir el movimiento vertical
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
     }
 
     private void MoveAndFocusCamera()
     {
         Transform currentTarget = targets[currentIndex];
 
-        // 1. Calcular la posicion deseada aplicando el offset
-        Vector3 targetPosition = currentTarget.position + cameraOffset;
+        // punto central hacia donde mirara la camara aplicando el nuevo offset
+        Vector3 targetCenter = currentTarget.position + focusOffset;
 
-        // 2. Mover la camara suavemente hacia la posicion deseada
-        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
+        // calcular la rotacion basada en la entrada del raton
+        Quaternion orbitRotation = Quaternion.Euler(pitch, yaw, 0f);
 
-        // 3. Rotar la camara suavemente para que siempre mire al objeto
-        Quaternion targetRotation = Quaternion.LookRotation(currentTarget.position - transform.position);
-        
-        // Usamos Slerp para una interpolacion esferica de la rotacion
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+        // asignar la posicion de forma directa e instantanea
+        transform.position = targetCenter - (orbitRotation * Vector3.forward * orbitDistance);
+
+        // forzar a la camara a mirar exactamente al centro ajustado
+        transform.LookAt(targetCenter);
     }
 }
