@@ -66,8 +66,13 @@ Shader "Custom/CookTorranceShader_Procedural"
     {
         Tags { "Queue"="Geometry" "RenderType"="Opaque" }
         ZWrite On
-
-        // --- Pase 1: Luz Direccional (ForwardBase) ---
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
+        // Luz Direccional (ForwardBase)
         Pass
         {
             Tags { "LightMode" = "ForwardBase" }
@@ -159,7 +164,7 @@ Shader "Custom/CookTorranceShader_Procedural"
             ENDCG
         }
 
-        // --- Pase 2: Luces adicionales (ForwardAdd) ---
+        // Luces adicionales (ForwardAdd)
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }

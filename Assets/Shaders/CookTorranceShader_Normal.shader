@@ -17,7 +17,12 @@ Shader "Custom/CookTorranceShader_Normal"
     {
         Tags { "Queue"="Geometry" "RenderType"="Opaque" }
         ZWrite On
-
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
         // luz direccional (forwardbase)
         Pass
         {

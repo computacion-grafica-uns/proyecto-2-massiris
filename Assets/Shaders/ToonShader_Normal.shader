@@ -25,7 +25,12 @@ Shader "Custom/ToonShader_Normal"
     SubShader
     {
         Tags { "Queue"="Geometry" }
-
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
         // Pass 0 outline (LLM)
         Pass
         {

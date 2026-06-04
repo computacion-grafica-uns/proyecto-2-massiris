@@ -15,7 +15,15 @@ Shader "Custom/BlinnPhongShader_Texture2D"
     {
         Tags { "Queue"="Geometry" }
         ZWrite On
-
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        // este pass no dibuja ningun color, solo escribe la profundidad de cada fragmento.
+        // asi unity sabe que partes del objeto estan adelante antes de hacer el blend,
+        // y evita que triangulos de atras se dibujen encima de los de adelante.
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
         //  Pass 1: luz direccional (ForwardBase)
         Pass
         {

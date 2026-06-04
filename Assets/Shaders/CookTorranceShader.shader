@@ -17,7 +17,12 @@ Shader "Custom/CookTorranceShader"
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
-
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
         //  luz direccional (ForwardBase)
         Pass
         {
@@ -64,7 +69,7 @@ Shader "Custom/CookTorranceShader"
             float G_Smith(float NdotV, float NdotL, float roughness)
             {
                 float r  = roughness + 1.0;
-                float k  = (r * r) / 8.0;
+                float k  = (r * r) / 8.0; // version de unreal engine
                 float gV = NdotV / (NdotV * (1.0 - k) + k); // oclusion hacia la camara
                 float gL = NdotL / (NdotL * (1.0 - k) + k); // oclusion hacia la luz
                 return gV * gL;

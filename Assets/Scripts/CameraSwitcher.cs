@@ -8,6 +8,10 @@ public class CameraSwitcher : MonoBehaviour
     
     [Header("configuracion de orbita")]
     public float orbitDistance = 4f;
+    public float minDistance = 2f;
+    public float maxDistance = 10f;
+    public float zoomSpeed = 5f;
+
     // usamos un vector3 para poder forzar el centro hacia abajo con valores negativos en y
     public Vector3 focusOffset = new Vector3(0f, -1f, 0f); 
     public float rotationSpeed = 5f;
@@ -57,6 +61,11 @@ public class CameraSwitcher : MonoBehaviour
         // capturar movimiento del raton en ambos ejes de forma instantanea
         yaw += Input.GetAxis("Mouse X") * rotationSpeed;
         pitch -= Input.GetAxis("Mouse Y") * rotationSpeed;
+
+        // zoom con rueda del raton
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        orbitDistance -= scroll * zoomSpeed;
+        orbitDistance = Mathf.Clamp(orbitDistance, minDistance, maxDistance);
         
         // restringir el movimiento vertical
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);

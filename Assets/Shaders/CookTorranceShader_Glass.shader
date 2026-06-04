@@ -18,7 +18,12 @@ Shader "Custom/CookTorranceShader_Glass"
         // CAMBIO 1: Alpha Premultiplicado para que el especular siga siendo brillante
         Blend One OneMinusSrcAlpha
         ZWrite Off
-
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
         //  Pass 1: luz direccional (ForwardBase)
         Pass
         {

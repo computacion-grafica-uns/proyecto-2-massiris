@@ -17,7 +17,12 @@ Shader "Custom/CookTorranceShader_Texture2D"
     {
         Tags { "Queue"="Geometry" }
         ZWrite On
-
+        // pre-z pass (llm) solucion a orden de dibujo incorrecto
+        Pass
+        {
+            ColorMask 0        // no escribe ningun canal de color (r, g, b, a)
+            ZWrite On          // solo nos importa escribir el depth buffer
+        }
             //  luz direccional (ForwardBase)
         Pass
         {
@@ -137,7 +142,6 @@ Shader "Custom/CookTorranceShader_Texture2D"
             ENDCG
         }
 
-            //  Pass 2: luces adicionales (point y spot)
         Pass
         {
             Tags { "LightMode" = "ForwardAdd" }
